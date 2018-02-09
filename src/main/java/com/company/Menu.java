@@ -1,5 +1,6 @@
 package com.company;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.Scanner;
 
@@ -32,22 +33,24 @@ public class Menu {
         return false;
     }
 
-    public boolean askIfAnotherSelection() {
+    public boolean askIfAnotherSelection(BigDecimal depositedCash, BigDecimal totalPrice) {
         Scanner input = new Scanner(System.in);
-        System.out.println("Would you like to make another selection?\n 1.Yes\n 2.No");
-        try {
-            int choice = input.nextInt();
-            if (choice == 1) {
-                return true;
-            } else if (choice == 2) {
-                return false;
-            } else {
-                System.out.println("Please choose the correct number!");
-                return askIfAnotherSelection();
+        if (depositedCash.compareTo(totalPrice) == 1) {
+            System.out.println("Would you like to make another selection?\n 1.Yes\n 2.No");
+            try {
+                int choice = input.nextInt();
+                if (choice == 1) {
+                    return true;
+                } else if (choice == 2) {
+                    return false;
+                } else {
+                    System.out.println("Please choose the correct number!");
+                    return askIfAnotherSelection(depositedCash, totalPrice);
+                }
+            } catch (Exception e) {
+                return askIfAnotherSelection(depositedCash, totalPrice);
             }
         }
-        catch (Exception e){
-           return askIfAnotherSelection();
-        }
+        return  false;
     }
 }

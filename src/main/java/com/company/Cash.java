@@ -22,11 +22,15 @@ public class Cash{
         return BigDecimal.valueOf(input.nextDouble());
     }
 
-    public void getTotalPrice(BigDecimal depositedCash, List<Item> chosenSelection) {
+    public BigDecimal getTotalPrice(List<Item> chosenSelection) {
         BigDecimal totalPrice = BigDecimal.ZERO;
         for (Item item : chosenSelection) {
             totalPrice = totalPrice.add(item.getPrice());
         }
+        return totalPrice;
+    }
+
+    public void getChange(BigDecimal depositedCash, BigDecimal totalPrice){
         System.out.println("Please take your change: £" + df.format(calculateChange(depositedCash, totalPrice)));
     }
 

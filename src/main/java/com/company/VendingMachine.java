@@ -3,6 +3,7 @@ package com.company;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class VendingMachine {
     private PaymentTypeService paymentTypeService;
@@ -10,7 +11,7 @@ public class VendingMachine {
     private Cash cash;
     private Card card;
     private Contactless contactless;
-    private BigDecimal depositedCash;
+    private BigDecimal depositedCash = BigDecimal.ZERO;
 
 
     public VendingMachine(PaymentTypeService paymentTypeService, Menu menu, Cash cash, Card card, Contactless contactless) {
@@ -22,40 +23,45 @@ public class VendingMachine {
     }
 
     public void start() {
-        boolean isValid = false;
-        Storage.initialiseStorage();
-        List<Item> chosenItems = new ArrayList<>();
-        PaymentTypeEnum paymentType = paymentTypeService.getPaymentType();
-        if (paymentType == PaymentTypeEnum.CASH) {
-            depositedCash = cash.takePayment();
-        } else if (paymentType == PaymentTypeEnum.CARD) {
-            isValid = card.handlePin();
-        }
-        boolean anotherSelection;
-        if (isValid) {
-            do {
-                menu.printItems();
-                Item chosenItem = menu.getUserInput();
+//        Scanner input = new Scanner(System.in);
+//        int end = 'c';
+//        int userInput;
+//
+//        while (userInput != end) {
+            boolean isValid = true;
+            Storage.initialiseStorage();
+            List<Item> chosenItems = new ArrayList<>();
+            PaymentTypeEnum paymentType = paymentTypeService.getPaymentType();
+            if (paymentType == PaymentTypeEnum.CASH) {
+                depositedCash = cash.takePayment();
+            } else if (paymentType == PaymentTypeEnum.CARD) {
+                isValid = card.handlePin();
+            }
+            boolean anotherSelection;
+            if (isValid) {
+                do {
+                    menu.printItems();
+                    Item chosenItem = menu.getUserInput();
 //            if (hasSufficientMoney(chosenItem)) {
-                chosenItems.add(chosenItem);
+                    chosenItems.add(chosenItem);
 //            }
 //            else {
 //                System.out.println("Insufficient money for: " + chosenItem.getName());
 //            }
-                anotherSelection = menu.askIfAnotherSelection();
-            } while (anotherSelection);
+                    anotherSelection = menu.askIfAnotherSelection(depositedCash, cash.getTotalPrice(chosenItems));
+                } while (anotherSelection);
 
-
-            if (paymentType == PaymentTypeEnum.CONTACTLESS) {
-                contactless.takePayment();
-            } else if (paymentType == PaymentTypeEnum.CASH) {
-                cash.getTotalPrice(depositedCash, chosenItems);
-            } else if (paymentType == PaymentTypeEnum.CARD) {
-                card.getTotalPrice(chosenItems);
+                if (paymentType == PaymentTypeEnum.CONTACTLESS) {
+                    contactless.takePayment();
+                } else if (paymentType == PaymentTypeEnum.CASH) {
+                    cash.getChange(depositedCash, cash.getTotalPrice(chosenItems));
+                } else if (paymentType == PaymentTypeEnum.CARD) {
+                    card.getTotalPrice(chosenItems);
+                }
+                dispenseItems(chosenItems);
             }
-            dispenseItems(chosenItems);
         }
-    }
+   // }
 
     public void dispenseItems(List<Item> chosenSelection) {
         for (Item item : chosenSelection) {
