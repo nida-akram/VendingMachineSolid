@@ -8,7 +8,7 @@ public class Card{
     private int attemptLimit = 3;
     private int attemptCount = 0;
 
-    public boolean isPinCorrect(int pin) {
+    private boolean isPinCorrect(int pin) {
         int correctPin = 1234;
         if (pin == correctPin){
                 System.out.println("Approved!");
@@ -19,23 +19,26 @@ public class Card{
         }
 
     public boolean handlePin(){
-        int pin;
         System.out.println("attemptCount: " + attemptCount);
         if (attemptCount >= attemptLimit){
             return false;
         }
-        Scanner input = new Scanner(System.in);
-        System.out.println("Please insert your card!");
-        System.out.println("Please enter your pin");
-        pin = input.nextInt();
-        if (isPinCorrect(pin)) {
+        if (isPinCorrect(getUserPin())) {
             return true;
         } else if(attemptCount != attemptLimit){
             return handlePin();
-        } else{
+        } else {
             System.out.println("EXCEEDED ATTEMPTS (" + attemptLimit + ") - CARD BLOCKED");
             return false;
         }
+    }
+
+    private int getUserPin() {
+        Scanner input = new Scanner(System.in);
+        System.out.println("Please insert your card!");
+        System.out.println("Please enter your pin");
+        int pin = input.nextInt();
+        return pin;
     }
 
     public void getTotalPrice(List<Item> chosenSelection) {

@@ -3,7 +3,6 @@ package com.company;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class VendingMachine {
     private PaymentTypeService paymentTypeService;
@@ -12,6 +11,10 @@ public class VendingMachine {
     private Card card;
     private Contactless contactless;
     private BigDecimal depositedCash = BigDecimal.ZERO;
+    private boolean isValid = true;
+    private boolean anotherSelection;
+    private boolean machineActive = true;
+
 
 
     public VendingMachine(PaymentTypeService paymentTypeService, Menu menu, Cash cash, Card card, Contactless contactless) {
@@ -23,67 +26,51 @@ public class VendingMachine {
     }
 
     public void start() {
-//        Scanner input = new Scanner(System.in);
-//        int end = 'c';
-//        int userInput;
-//
-//        while (userInput != end) {
-            boolean isValid = true;
-            Storage.initialiseStorage();
-            List<Item> chosenItems = new ArrayList<>();
+        Storage.initialiseStorage();
+        List<Item> chosenItems = new ArrayList<>();
+        while (machineActive){
+            chosenItems.clear();
             PaymentTypeEnum paymentType = paymentTypeService.getPaymentType();
-            if (paymentType == PaymentTypeEnum.CASH) {
-                depositedCash = cash.takePayment();
-            } else if (paymentType == PaymentTypeEnum.CARD) {
-                isValid = card.handlePin();
-            }
-            boolean anotherSelection;
+            handleInitalPayment(paymentType);
             if (isValid) {
-                do {
-                    menu.printItems();
-                    Item chosenItem = menu.getUserInput();
-//            if (hasSufficientMoney(chosenItem)) {
-                    chosenItems.add(chosenItem);
-//            }
-//            else {
-//                System.out.println("Insufficient money for: " + chosenItem.getName());
-//            }
-                    anotherSelection = menu.askIfAnotherSelection(depositedCash, cash.getTotalPrice(chosenItems));
-                } while (anotherSelection);
-
-                if (paymentType == PaymentTypeEnum.CONTACTLESS) {
-                    contactless.takePayment();
-                } else if (paymentType == PaymentTypeEnum.CASH) {
-                    cash.getChange(depositedCash, cash.getTotalPrice(chosenItems));
-                } else if (paymentType == PaymentTypeEnum.CARD) {
-                    card.getTotalPrice(chosenItems);
-                }
+                menuOption(chosenItems, paymentType);
+                handlePaymentType(paymentType, chosenItems);
                 dispenseItems(chosenItems);
             }
+            System.out.println("\n");
         }
-   // }
+    }
 
-    public void dispenseItems(List<Item> chosenSelection) {
+    private void menuOption (List<Item> chosenItems, PaymentTypeEnum paymentType) {
+        do {
+            menu.printItems();
+            Item chosenItem = menu.getUserInput();
+            chosenItems.add(chosenItem);
+            anotherSelection = menu.askIfAnotherSelection(depositedCash, cash.getTotalPrice(chosenItems), paymentType);
+        } while (anotherSelection);
+    }
+
+    private void handleInitalPayment(PaymentTypeEnum paymentType) {
+        if (paymentType == PaymentTypeEnum.CASH) {
+            depositedCash = cash.takePayment();
+        } else if (paymentType == PaymentTypeEnum.CARD) {
+            isValid = card.handlePin();
+        }
+    }
+
+    private void handlePaymentType(PaymentTypeEnum paymentType, List<Item> chosenItems) {
+        if (paymentType == PaymentTypeEnum.CONTACTLESS) {
+            contactless.takePayment();
+        } else if (paymentType == PaymentTypeEnum.CASH) {
+            cash.getChange(depositedCash, cash.getTotalPrice(chosenItems));
+        } else if (paymentType == PaymentTypeEnum.CARD) {
+            card.getTotalPrice(chosenItems);
+        }
+    }
+
+    private void dispenseItems(List<Item> chosenSelection) {
         for (Item item : chosenSelection) {
             System.out.println("Dispensing your item: " + item.getName());
         }
     }
-
-//    // TODO possible move into a different class
-//    private boolean hasSufficientMoney(Item chosenItem){
-//        double currentTotal = 0;
-//        for (Item item : Storage.getListofItems()){
-//            // TODO Bad hack - fix this properly ;-)
-//            currentTotal += Double.valueOf("" + item.getPrice());
-//        }
-//        double chosenItemPrice = Double.valueOf("" + chosenItem.getPrice());
-//        if (chosenItemPrice + currentTotal > Double.valueOf("" + depositedCash)){
-//            return false;
-//        }
-//        return true;
-//    }
 }
-
-//TODO 3 times attempt at card payment
-//TODO sort my bloody cash out
-//TODO in cash class, make the would you like another option go away if not enough money at start

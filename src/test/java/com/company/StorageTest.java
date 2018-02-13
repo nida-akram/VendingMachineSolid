@@ -22,7 +22,6 @@ public class StorageTest {
 
     @Test
     public void displayErrorMessageIfOptionNumberIsAlreadyUsed() {
-        storage.addItemToStorage("Coke", BigDecimal.valueOf(2.10), 1);
         storage.addItemToStorage("Fanta", BigDecimal.valueOf(2.10), 1);
         assertEquals("Error, an item already exists with this item number!\n", outContent.toString());
     }

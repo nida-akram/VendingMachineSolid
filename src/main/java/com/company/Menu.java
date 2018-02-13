@@ -15,11 +15,16 @@ public class Menu {
     }
 
     public Item getUserInput() {
+        boolean isInValid = true;
+        int optionNumber = 0;
         Scanner input = new Scanner(System.in);
-        int optionNumber = input.nextInt();
-        if (!isValidOption(optionNumber)) {
-            System.out.println("Please choose the correct option number");
-            getUserInput();
+        while (isInValid){
+             optionNumber = input.nextInt();
+            if (isValidOption(optionNumber)) {
+                isInValid = false;
+            } else {
+                System.out.println("Please choose the correct option number");
+            }
         }
         return Storage.getItemByOptionNumber(optionNumber);
     }
@@ -33,11 +38,11 @@ public class Menu {
         return false;
     }
 
-    public boolean askIfAnotherSelection(BigDecimal depositedCash, BigDecimal totalPrice) {
+
+    public boolean askIfAnotherSelection(BigDecimal depositedCash, BigDecimal totalPrice, PaymentTypeEnum paymentType) {
         Scanner input = new Scanner(System.in);
-        if (depositedCash.compareTo(totalPrice) == 1) {
+        if (depositedCash.compareTo(totalPrice) == 1 || paymentType != PaymentTypeEnum.CASH) {
             System.out.println("Would you like to make another selection?\n 1.Yes\n 2.No");
-            try {
                 int choice = input.nextInt();
                 if (choice == 1) {
                     return true;
@@ -45,12 +50,9 @@ public class Menu {
                     return false;
                 } else {
                     System.out.println("Please choose the correct number!");
-                    return askIfAnotherSelection(depositedCash, totalPrice);
+                    return askIfAnotherSelection(depositedCash, totalPrice, paymentType);
                 }
-            } catch (Exception e) {
-                return askIfAnotherSelection(depositedCash, totalPrice);
-            }
         }
-        return  false;
+        return false;
     }
 }

@@ -8,7 +8,7 @@ import java.util.Scanner;
 public class Cash{
     private DecimalFormat df = new DecimalFormat("0.00");
 
-    public BigDecimal calculateChange(BigDecimal cash, BigDecimal price) {
+    private BigDecimal calculateChange(BigDecimal cash, BigDecimal price) {
         BigDecimal change = cash.subtract(price);
         if (change.compareTo(BigDecimal.ZERO)== -1) {
             change = getExtraCash(change.abs());
@@ -34,10 +34,10 @@ public class Cash{
         System.out.println("Please take your change: £" + df.format(calculateChange(depositedCash, totalPrice)));
     }
 
-    public BigDecimal getExtraCash(BigDecimal change) {
+    private BigDecimal getExtraCash(BigDecimal change) {
         BigDecimal cashNeeded = change;
         while (cashNeeded.compareTo(BigDecimal.ZERO)== 1) {
-            System.out.println("Please insert " + cashNeeded);
+            System.out.println("Please insert " + "£" + df.format(cashNeeded));
             cashNeeded = cashNeeded.subtract(takePayment());
         }
      return cashNeeded.abs();
